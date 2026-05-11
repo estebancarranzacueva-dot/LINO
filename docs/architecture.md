@@ -1,104 +1,114 @@
 # Arquitectura técnica
 
-<!-- Documento vivo. Actualizar cada vez que cambie el stack, la estructura de carpetas
-     o cualquier decisión técnica relevante.
-     Los cambios deben registrarse también en changelog/. -->
-
 ---
 
 ## Stack seleccionado
 
-<!-- Lista el stack con justificación breve de cada decisión.
-     Ejemplo:
-     - **Next.js 14 (App Router):** Server Components para reducir bundle, mejor SEO.
-     - **Supabase:** Base de datos + Auth + Storage en un solo servicio, bien integrado con Next.js.
-     - **Tailwind CSS + shadcn/ui:** Velocidad de desarrollo sin sacrificar personalización.
-     - **Vercel:** Despliegue zero-config para Next.js, previews por rama. -->
-
 | Capa | Tecnología | Justificación |
 |------|-----------|---------------|
-| Framework | <!-- --> | <!-- --> |
-| Base de datos | <!-- --> | <!-- --> |
-| Autenticación | <!-- --> | <!-- --> |
-| Estilos | <!-- --> | <!-- --> |
-| Despliegue | <!-- --> | <!-- --> |
+| Framework | HTML5 + CSS3 + JavaScript vanilla | Sin dependencias, funciona offline, despliegue trivial |
+| Base de datos | Ninguna | Calculadora puramente client-side |
+| Autenticación | Ninguna | No se requiere |
+| Estilos | CSS custom (variables + grid/flex) | Sin frameworks externos, control total, bundle 0 |
+| Despliegue | GitHub Pages / cualquier hosting estático | Un solo archivo HTML |
 
 ---
 
 ## Diagrama de componentes
 
-<!-- Diagrama en Mermaid que muestre cómo interactúan los componentes principales.
-     Ejemplo:
-     ```mermaid
-     graph TD
-       Client[Navegador] --> NextJS[Next.js App]
-       NextJS --> Supabase[Supabase API]
-       Supabase --> DB[(PostgreSQL)]
-       Supabase --> Storage[Storage]
-       NextJS --> Resend[Resend API]
-     ```
--->
-
 ```mermaid
 graph TD
-  A[Reemplaza este diagrama con el real]
+  Usuario[Usuario] --> HTML[index.html]
+  HTML --> Form[Formulario de inputs]
+  HTML --> Engine[Motor de cálculo JS]
+  HTML --> Results[Panel de resultados]
+  Engine --> |calcula| Results
+  Form --> |dispara onChange| Engine
 ```
 
 ---
 
 ## Estructura de carpetas
 
-<!-- Documenta la estructura real del proyecto con una línea de descripción por carpeta.
-     Ejemplo:
-     ```
-     src/
-     ├── app/              → Rutas (App Router de Next.js)
-     │   ├── (auth)/       → Rutas protegidas por autenticación
-     │   └── api/          → Route handlers
-     ├── components/
-     │   ├── ui/           → Componentes base (shadcn/ui)
-     │   └── [feature]/    → Componentes específicos de cada feature
-     ├── lib/
-     │   ├── supabase/     → Cliente Supabase y helpers
-     │   └── utils/        → Funciones utilitarias
-     ├── hooks/            → Custom hooks de React
-     └── types/            → Tipos TypeScript compartidos
-     ``` -->
+```
+LINO/
+├── index.html          → Calculadora completa (HTML + CSS + JS inline)
+├── README.md           → Documentación de uso
+├── CLAUDE.md           → Instrucciones para agentes de codificación
+├── docs/               → Documentación del proyecto
+│   ├── prd.md
+│   ├── architecture.md
+│   ├── data-model.md
+│   ├── design-system.md
+│   ├── business.md
+│   └── roadmap.md
+├── changelog/          → Registro de cambios
+└── mejoras/            → Ideas futuras
+```
+
+---
+
+## Fórmulas matemáticas (núcleo de la calculadora)
+
+### Factor de salud (Health Factor)
+```
+HF = (Valor Colateral USD × Liquidation Threshold) / Deuda Total USD
+```
+- HF > 1: posición segura
+- HF = 1: umbral de liquidación
+- HF < 1: posición liquidable
+
+### Precio de liquidación
+```
+Precio_liq = (Deuda USD × Precio_actual) / (Valor_colateral USD × Liquidation_threshold)
+```
+Derivación: cuando el precio cae a P_liq, el colateral vale `Colateral_USD × (P_liq / P_actual)`.
+En ese punto HF = 1, por tanto:
+```
+1 = (Colateral_USD × (P_liq / P_actual) × LT) / Deuda_USD
+P_liq = (Deuda_USD × P_actual) / (Colateral_USD × LT)
+```
+
+### LTV actual
+```
+LTV_actual = (Deuda USD / Valor Colateral USD) × 100
+```
+
+### Caída necesaria para liquidación
+```
+Caída% = ((Precio_actual - Precio_liq) / Precio_actual) × 100
+```
+
+### Colateral recibido por liquidador (liquidación parcial, 50% de deuda)
+```
+Deuda_cubierta = Deuda_USD × 0.5
+Colateral_liquidado_USD = Deuda_cubierta × (1 + Liquidation_bonus)
+```
 
 ---
 
 ## Estrategia de autenticación
 
-<!-- Explica cómo funciona la autenticación.
-     Qué proveedor, qué flujo (magic link, OAuth, password), cómo se gestiona la sesión,
-     cómo se protegen las rutas. -->
+No aplica.
 
 ---
 
 ## Integraciones externas
 
-<!-- Lista de servicios de terceros con descripción de para qué se usan y cómo se integran.
-     Ejemplo:
-     - **Resend:** Envío de emails transaccionales. Se llama desde server actions.
-     - **Stripe:** Pagos. Webhooks procesados en /api/webhooks/stripe. -->
+Ninguna. La calculadora es 100% offline.
 
 ---
 
 ## Estrategia de despliegue
 
-<!-- Describe el flujo desde desarrollo hasta producción.
-     Ramas, entornos (local / staging / producción), CI/CD si existe, variables de entorno por entorno. -->
+Abrir `index.html` directamente en el navegador, o subir a cualquier hosting estático (GitHub Pages, Netlify, Vercel).
 
 ---
 
 ## Decisiones técnicas relevantes
 
-<!-- Registro de decisiones arquitectónicas importantes con su razonamiento.
-     Útil para no repetir debates ya resueltos.
-     Formato sugerido:
-     
-     ### [Fecha] — [Título de la decisión]
-     **Contexto:** por qué surgió la decisión
-     **Opciones consideradas:** qué alternativas se evaluaron
-     **Decisión:** qué se eligió
-     **Consecuencias:** qué implica a futuro -->
+### 2026-05-11 — HTML/CSS/JS vanilla sin frameworks
+**Contexto:** es una calculadora sin estado persistente ni rutas.  
+**Opciones consideradas:** React + Vite, Svelte, vanilla.  
+**Decisión:** vanilla — cero dependencias, funciona offline, un solo archivo, despliegue inmediato.  
+**Consecuencias:** si crece mucho en complejidad, migrar a un framework ligero sería el siguiente paso.

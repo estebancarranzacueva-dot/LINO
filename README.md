@@ -1,66 +1,62 @@
-# [Nombre del proyecto]
+# Calculadora de Liquidación — Aave
 
-<!-- Una frase que explique qué es el proyecto. -->
+Calcula el precio exacto al que tu posición de préstamo en Aave sería liquidada.
 
 ---
 
 ## Qué es esto
 
-<!-- 2-3 párrafos explicando el problema que resuelve y cómo lo resuelve.
-     Sin jerga técnica. Pensado para alguien que entra al repositorio por primera vez. -->
+Herramienta web client-side para usuarios del protocolo DeFi Aave. Introduce los parámetros de tu posición y obtén en tiempo real:
+
+- **Precio de liquidación** — a qué precio de mercado serías liquidado
+- **Factor de salud (HF)** — qué tan lejos estás de la liquidación
+- **LTV actual** — tu ratio deuda/colateral vs los límites del protocolo
+- **Simulación de liquidación parcial** — cuánto colateral perderías si te liquidan
+
+No requiere conexión a wallet ni a ninguna API. Funciona offline.
 
 ---
 
 ## Requisitos previos
 
-<!-- Lista de lo que necesitas instalado antes de poder correr el proyecto.
-     Ejemplo:
-     - Node.js 18+
-     - Una cuenta de Supabase
-     - Variables de entorno configuradas (ver sección siguiente) -->
+Solo un navegador moderno. Sin instalación.
 
 ---
 
-## Variables de entorno
+## Uso
 
-<!-- Lista de variables necesarias con descripción. Nunca pongas valores reales aquí.
-     Ejemplo:
-     ```
-     NEXT_PUBLIC_SUPABASE_URL=       # URL del proyecto Supabase
-     NEXT_PUBLIC_SUPABASE_ANON_KEY=  # Clave pública de Supabase
-     SUPABASE_SERVICE_ROLE_KEY=      # Clave privada (solo servidor)
-     RESEND_API_KEY=                 # API key de Resend para emails
-     ```
-     Copia `.env.example` a `.env.local` y rellena los valores. -->
+Abre `index.html` directamente en tu navegador, o despliégalo en cualquier hosting estático (GitHub Pages, Netlify, Vercel).
+
+### Parámetros de entrada
+
+| Campo | Descripción | Ejemplo (ETH) |
+|-------|-------------|---------------|
+| Precio actual del colateral | Precio de mercado del activo colateral | $3,500 |
+| Valor del colateral | Total depositado en Aave (USD) | $10,000 |
+| Valor de la deuda | Total prestado incluyendo intereses (USD) | $5,000 |
+| Liquidation Threshold | Umbral de liquidación del activo | 82.5% |
+| LTV máximo | Loan-to-Value máximo del activo | 80% |
+| Penalización por liquidación | Bonus del liquidador sobre el colateral | 5% |
+
+### Valores de referencia (Aave v3, Ethereum Mainnet)
+
+| Activo | LT | LTV máx | Penalización |
+|--------|----|---------|--------------|
+| ETH / wstETH | 82.5% | 80% | 5% |
+| WBTC | 75% | 70% | 10% |
+| LINK | 67% | 65% | 10% |
+| USDC / DAI | 78% | 75% | 5% |
+
+Verifica siempre los valores actuales en [app.aave.com](https://app.aave.com).
 
 ---
 
-## Instalación y desarrollo
+## Fórmula principal
 
-```bash
-# Clonar el repositorio
-git clone [url-del-repo]
-cd [nombre-del-proyecto]
-
-# Instalar dependencias
-npm install
-
-# Configurar variables de entorno
-cp .env.example .env.local
-# Edita .env.local con tus valores
-
-# Iniciar en modo desarrollo
-npm run dev
 ```
-
-<!-- Añade pasos adicionales si son necesarios: migraciones de base de datos, seed, etc. -->
-
----
-
-## Estructura del proyecto
-
-<!-- Explica brevemente qué hay en cada carpeta principal.
-     No hace falta listar cada archivo, solo las carpetas de primer nivel y su propósito. -->
+Precio_liquidación = (Deuda_USD × Precio_actual) / (Colateral_USD × Liquidation_Threshold)
+Factor_salud       = (Colateral_USD × Liquidation_Threshold) / Deuda_USD
+```
 
 ---
 
@@ -73,19 +69,6 @@ npm run dev
 
 ---
 
-## Preguntas frecuentes
-
-<!-- Añade aquí las dudas que suelen surgir al trabajar con el proyecto.
-     Ejemplo:
-     **¿Por qué usamos App Router y no Pages Router?**
-     Porque el proyecto requiere Server Components para reducir el bundle del cliente.
-     
-     **¿Cómo añado una nueva tabla en Supabase?**
-     Crea una migración en supabase/migrations/ y actualiza docs/data-model.md. -->
-
----
-
 ## Estado del proyecto
 
-<!-- En desarrollo / Beta / Producción -->
-<!-- Última actualización: YYYY-MM-DD -->
+En desarrollo · Última actualización: 2026-05-11

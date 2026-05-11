@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Liquidación — Aave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0D1117;
+      --surface:    #161B22;
+      --surface2:   #1C2333;
+      --border:     #30363D;
+      --primary:    #7C3AED;
+      --primary-lt: #A78BFA;
+      --text:       #E6EDF3;
+      --text2:      #8B949E;
+      --success:    #10B981;
+      --warning:    #F59E0B;
+      --danger:     #EF4444;
+      --radius-lg:  12px;
+      --radius-md:  8px;
+      --radius-sm:  6px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .logo {
+      width: 44px; height: 44px;
+      background: var(--primary);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo svg { width: 24px; height: 24px; }
+    header h1 { font-size: 22px; font-weight: 700; }
+    header p  { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+    /* ── Layout principal ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 640px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 16px;
+    }
+    .card-full { grid-column: 1 / -1; }
+
+    /* ── Inputs ── */
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 480px) {
+      .input-grid { grid-template-columns: 1fr; }
+    }
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-group label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text2);
+    }
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrap input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      padding: 9px 40px 9px 12px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .input-wrap input:focus { border-color: var(--primary); }
+    .input-wrap input.invalid { border-color: var(--danger); }
+    .input-suffix {
+      position: absolute;
+      right: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+      pointer-events: none;
+    }
+    .input-hint {
+      font-size: 11px;
+      color: var(--text2);
+      opacity: .7;
+    }
+
+    /* ── Métricas de resultado ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 480px) {
+      .metrics-grid { grid-template-columns: 1fr; }
+    }
+    .metric {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+    .metric-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 6px;
+    }
+    .metric-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .metric-desc {
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 4px;
+    }
+    .metric-value.safe    { color: var(--success); }
+    .metric-value.warning { color: var(--warning); }
+    .metric-value.danger  { color: var(--danger); }
+    .metric-value.neutral { color: var(--text); }
+
+    /* ── Risk badge ── */
+    .risk-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .risk-badge.safe    { background: rgba(16,185,129,.15); color: var(--success); }
+    .risk-badge.warning { background: rgba(245,158,11,.15);  color: var(--warning); }
+    .risk-badge.danger  { background: rgba(239,68,68,.15);   color: var(--danger); }
+    .risk-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* ── Health factor bar ── */
+    .hf-section { margin-top: 8px; }
+    .hf-bar-wrap {
+      background: var(--surface2);
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+      margin: 8px 0 4px;
+    }
+    .hf-bar {
+      height: 100%;
+      border-radius: 99px;
+      transition: width .4s ease, background .4s ease;
+    }
+    .hf-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text2);
+    }
+
+    /* ── LTV comparativa ── */
+    .ltv-compare {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .ltv-bar-group { flex: 1; }
+    .ltv-bar-wrap {
+      background: var(--surface2);
+      border-radius: 99px;
+      height: 6px;
+      overflow: visible;
+      position: relative;
+      margin-top: 4px;
+    }
+    .ltv-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width .4s ease, background .4s ease;
+    }
+    .ltv-bar-threshold {
+      position: absolute;
+      top: -4px;
+      width: 2px;
+      height: 14px;
+      background: var(--warning);
+      border-radius: 2px;
+    }
+
+    /* ── Liquidación detalle ── */
+    .liq-detail {
+      background: rgba(239,68,68,.07);
+      border: 1px solid rgba(239,68,68,.2);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-top: 12px;
+    }
+    .liq-detail-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--danger);
+      margin-bottom: 8px;
+    }
+    .liq-detail-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .liq-detail-row:last-child { border-bottom: none; }
+    .liq-detail-row span:first-child { color: var(--text2); }
+    .liq-detail-row span:last-child  { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+    /* ── Placeholder vacío ── */
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: var(--text2);
+      font-size: 13px;
+    }
+    .empty-state svg { opacity: .3; margin-bottom: 10px; }
+
+    /* ── Tooltip info ── */
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--border);
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text2);
+      cursor: help;
+      margin-left: 4px;
+      vertical-align: middle;
+      position: relative;
+    }
+    .info-icon:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #222;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--text);
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text2);
+    }
+    footer a { color: var(--primary-lt); text-decoration: none; }
+
+    /* ── Animación de entrada ── */
+    .results-panel { animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Calculadora de Liquidación — Aave</h1>
+      <p>Calcula el precio exacto al que tu posición sería liquidada</p>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- ── Inputs ── -->
+    <div class="card card-full">
+      <div class="card-title">Parámetros de la posición</div>
+      <div class="input-grid">
+
+        <div class="input-group">
+          <label>
+            Precio actual del colateral
+            <span class="info-icon" data-tip="Precio de mercado actual del activo que usas como colateral">?</span>
+          </label>
+          <div class="input-wrap">
+            <input type="number" id="precioActual" placeholder="ej. 3500" min="0" step="any">
+            <span class="input-suffix">USD</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>
+            Valor del colateral
+            <span class="info-icon" data-tip="Total depositado como colateral en USD (Aave lo muestra en tu dashboard)">?</span>
+          </label>
+          <div class="input-wrap">
+            <input type="number" id="valorColateral" placeholder="ej. 10000" min="0" step="any">
+            <span class="input-suffix">USD</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>
+            Valor de la deuda
+            <span class="info-icon" data-tip="Total prestado en USD, incluyendo intereses acumulados">?</span>
+          </label>
+          <div class="input-wrap">
+            <input type="number" id="valorDeuda" placeholder="ej. 5000" min="0" step="any">
+            <span class="input-suffix">USD</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>
+            Liquidation Threshold
+            <span class="info-icon" data-tip="Umbral de liquidación del activo colateral. En Aave: ETH=82.5%, WBTC=75%. Ver en app.aave.com">?</span>
+          </label>
+          <div class="input-wrap">
+            <input type="number" id="liquidationThreshold" placeholder="ej. 82.5" min="0" max="100" step="any">
+            <span class="input-suffix">%</span>
+          </div>
+          <span class="input-hint">ETH: 82.5% · WBTC: 75% · LINK: 67%</span>
+        </div>
+
+        <div class="input-group">
+          <label>
+            LTV máximo
+            <span class="info-icon" data-tip="Loan-to-Value máximo del activo. Determina cuánto puedes pedir prestado. ETH=80%, WBTC=70%">?</span>
+          </label>
+          <div class="input-wrap">
+            <input type="number" id="ltvMax" placeholder="ej. 80" min="0" max="100" step="any">
+            <span class="input-suffix">%</span>
+          </div>
+          <span class="input-hint">ETH: 80% · WBTC: 70% · LINK: 65%</span>
+        </div>
+
+        <div class="input-group">
+          <label>
+            Penalización por liquidación
+            <span class="info-icon" data-tip="Bonus que recibe el liquidador sobre el colateral. ETH=5%, WBTC=10%">?</span>
+          </label>
+          <div class="input-wrap">
+            <input type="number" id="penalizacion" placeholder="ej. 5" min="0" max="50" step="any">
+            <span class="input-suffix">%</span>
+          </div>
+          <span class="input-hint">ETH: 5% · WBTC: 10% · LINK: 10%</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Resultados ── -->
+    <div class="card card-full" id="resultsCard">
+      <div class="card-title">Resultados</div>
+      <div id="resultsContent">
+        <div class="empty-state">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>Completa los parámetros de arriba para ver los resultados</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Calculadora educativa · Los valores son estimaciones basadas en las fórmulas públicas de
+    <a href="https://docs.aave.com/developers/guides/liquidations" target="_blank" rel="noopener">Aave Protocol</a>.
+    No constituye asesoramiento financiero.
+  </footer>
+
+</div>
+
+<script>
+  const ids = ['precioActual','valorColateral','valorDeuda','liquidationThreshold','ltvMax','penalizacion'];
+  ids.forEach(id => document.getElementById(id).addEventListener('input', calcular));
+
+  function fmt(n, decimals = 2) {
+    if (!isFinite(n)) return '—';
+    return n.toLocaleString('es-ES', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+
+  function riskClass(hf) {
+    if (hf >= 1.5) return 'safe';
+    if (hf >= 1.1) return 'warning';
+    return 'danger';
+  }
+
+  function riskLabel(hf) {
+    if (hf >= 1.5) return 'Posición segura';
+    if (hf >= 1.1) return 'Atención';
+    return 'En peligro';
+  }
+
+  function calcular() {
+    const get = id => parseFloat(document.getElementById(id).value);
+    const P  = get('precioActual');
+    const C  = get('valorColateral');
+    const D  = get('valorDeuda');
+    const LT = get('liquidationThreshold') / 100;
+    const LTV_MAX = get('ltvMax') / 100;
+    const PEN = get('penalizacion') / 100;
+
+    const valid = [P, C, D, LT, LTV_MAX, PEN].every(v => isFinite(v) && v > 0)
+                  && D < C && LT <= 1 && LTV_MAX <= 1;
+
+    const content = document.getElementById('resultsContent');
+    if (!valid) {
+      content.innerHTML = `
+        <div class="empty-state">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>Completa todos los campos con valores válidos<br><small>(la deuda debe ser menor que el colateral)</small></p>
+        </div>`;
+      return;
+    }
+
+    // ── Cálculos ──
+    const HF         = (C * LT) / D;
+    const P_liq      = (D * P) / (C * LT);
+    const caida_pct  = ((P - P_liq) / P) * 100;
+    const ltv_actual = (D / C) * 100;
+    const ltv_max_pct = LTV_MAX * 100;
+    const lt_pct      = LT * 100;
+
+    // Liquidación parcial (50% deuda, como hace Aave)
+    const deuda_cubierta   = D * 0.5;
+    const colat_recibe_liq = deuda_cubierta * (1 + PEN);
+    const colat_cantidad   = C / P;
+    const colat_liq_tokens = colat_recibe_liq / P_liq;
+    const colat_liq_pct    = (colat_recibe_liq / C) * 100;
+
+    const cls  = riskClass(HF);
+    const hfBarPct = Math.min((HF / 3) * 100, 100);
+    const hfColor  = cls === 'safe' ? 'var(--success)' : cls === 'warning' ? 'var(--warning)' : 'var(--danger)';
+
+    const ltvBarPct  = Math.min((ltv_actual / lt_pct) * 100, 100);
+    const ltvBarColor = ltv_actual >= lt_pct ? 'var(--danger)'
+                      : ltv_actual >= ltv_max_pct ? 'var(--warning)' : 'var(--success)';
+    const ltvThresholdPos = Math.min((ltv_max_pct / lt_pct) * 100, 100);
+
+    content.innerHTML = `
+      <div class="results-panel">
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+          <div class="risk-badge ${cls}">
+            <span class="risk-dot"></span>
+            ${riskLabel(HF)}
+          </div>
+          <span style="font-size:12px; color:var(--text2)">
+            Buffer hasta liquidación: <strong style="color:var(--text)">${fmt(caida_pct, 1)}%</strong> de caída
+          </span>
+        </div>
+
+        <div class="metrics-grid">
+
+          <div class="metric">
+            <div class="metric-label">Precio de liquidación</div>
+            <div class="metric-value ${cls}">$${fmt(P_liq)}</div>
+            <div class="metric-desc">
+              Caída de $${fmt(P)} → <strong>$${fmt(P_liq)}</strong> (−${fmt(caida_pct,1)}%)
+            </div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">
+              Factor de salud
+              <span class="info-icon" data-tip="HF = (Colateral × LT) / Deuda. Por debajo de 1 eres liquidable">?</span>
+            </div>
+            <div class="metric-value ${cls}">${fmt(HF, 3)}</div>
+            <div class="hf-section">
+              <div class="hf-bar-wrap">
+                <div class="hf-bar" style="width:${hfBarPct}%; background:${hfColor}"></div>
+              </div>
+              <div class="hf-labels">
+                <span>Liquidación (1.0)</span>
+                <span>Seguro (≥ 1.5)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">LTV actual vs máximos</div>
+            <div class="metric-value ${ltv_actual >= lt_pct ? 'danger' : ltv_actual >= ltv_max_pct ? 'warning' : 'safe'}">
+              ${fmt(ltv_actual, 1)}%
+            </div>
+            <div class="ltv-compare">
+              <div class="ltv-bar-group">
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text2);">
+                  <span>LTV actual</span>
+                  <span>LTV max: ${fmt(ltv_max_pct,0)}% · LT: ${fmt(lt_pct,0)}%</span>
+                </div>
+                <div class="ltv-bar-wrap">
+                  <div class="ltv-bar-fill" style="width:${ltvBarPct}%; background:${ltvBarColor}"></div>
+                  <div class="ltv-bar-threshold" style="left:${ltvThresholdPos}%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="metric-desc" style="margin-top:6px">
+              Deuda: $${fmt(D)} / Colateral: $${fmt(C)}
+            </div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">Precio de entrada efectivo</div>
+            <div class="metric-value neutral">$${fmt(P)}</div>
+            <div class="metric-desc">
+              Colateral: ${fmt(colat_cantidad, 4)} tokens · Valor: $${fmt(C)}
+            </div>
+          </div>
+
+        </div>
+
+        <div class="liq-detail">
+          <div class="liq-detail-title">
+            ⚠ Simulación de liquidación parcial (si HF cae a 1.0)
+          </div>
+          <div class="liq-detail-row">
+            <span>Deuda que cubre el liquidador (50%)</span>
+            <span>$${fmt(deuda_cubierta)}</span>
+          </div>
+          <div class="liq-detail-row">
+            <span>Penalización por liquidación (${fmt(PEN*100,0)}%)</span>
+            <span>$${fmt(deuda_cubierta * PEN)}</span>
+          </div>
+          <div class="liq-detail-row">
+            <span>Colateral que recibe el liquidador</span>
+            <span>$${fmt(colat_recibe_liq)} (≈ ${fmt(colat_liq_tokens, 4)} tokens)</span>
+          </div>
+          <div class="liq-detail-row">
+            <span>% de tu colateral que pierdes</span>
+            <span style="color:var(--danger)">${fmt(colat_liq_pct, 1)}%</span>
+          </div>
+          <div class="liq-detail-row">
+            <span>Colateral restante tras liquidación parcial</span>
+            <span>$${fmt(C - colat_recibe_liq)}</span>
+          </div>
+        </div>
+
+      </div>
+    `;
+  }
+</script>
+</body>
+</html>

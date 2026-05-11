@@ -1,102 +1,83 @@
 # Design System
 
-<!-- Fuente de verdad visual del proyecto.
-     Consultar antes de crear cualquier componente nuevo.
-     Actualizar cuando se añadan nuevos patrones, componentes o se modifique la identidad visual. -->
-
 ---
 
 ## Paleta de colores
 
-<!-- Define todos los colores con su rol semántico y código hex.
-     Ejemplo:
-     | Rol | Nombre | Hex |
-     |-----|--------|-----|
-     | Primary | Violeta principal | #7665FF |
-     | Secondary | ... | ... |
-     | Accent | ... | ... |
-     | Background | Fondo base | #FFFFFF |
-     | Surface | Fondo de cards | #F8F8F8 |
-     | Text primary | Texto principal | #111111 |
-     | Text secondary | Texto secundario | #666666 |
-     | Success | Estados positivos | #22C55E |
-     | Error | Estados de error | #EF4444 |
-     | Warning | Advertencias | #F59E0B |
--->
-
 | Rol | Nombre | Hex |
 |-----|--------|-----|
-| Primary | <!-- --> | <!-- --> |
-| Secondary | <!-- --> | <!-- --> |
-| Background | <!-- --> | <!-- --> |
-| Text primary | <!-- --> | <!-- --> |
-| Error | <!-- --> | <!-- --> |
+| Primary | Púrpura Aave | #7C3AED |
+| Primary light | Púrpura claro | #A78BFA |
+| Background | Negro profundo | #0D1117 |
+| Surface | Card oscura | #161B22 |
+| Surface 2 | Input fondo | #1C2333 |
+| Border | Borde sutil | #30363D |
+| Text primary | Blanco suave | #E6EDF3 |
+| Text secondary | Gris claro | #8B949E |
+| Success | Verde seguro | #10B981 |
+| Warning | Naranja atención | #F59E0B |
+| Error | Rojo peligro | #EF4444 |
 
 ---
 
 ## Tipografía
 
-<!-- Define fuentes, tamaños y pesos.
-     Ejemplo:
-     - **Display / Headings:** Fraunces, serif
-     - **Body:** Outfit, sans-serif
-     - **Monospace / Code:** Space Mono
-     
-     | Nivel | Fuente | Tamaño | Peso |
-     |-------|--------|--------|------|
-     | H1 | Fraunces | 48px | 700 |
-     | H2 | Fraunces | 36px | 600 |
-     | Body | Outfit | 16px | 400 |
-     | Caption | Outfit | 12px | 400 |
--->
+- **Display / Headings:** Inter, sans-serif (Google Fonts)
+- **Body / Labels:** Inter, sans-serif
+- **Números / Monospace:** JetBrains Mono, monospace
+
+| Nivel | Tamaño | Peso |
+|-------|--------|------|
+| H1 | 28px | 700 |
+| H2 (card title) | 18px | 600 |
+| Label | 13px | 500 |
+| Value destacado | 32px | 700 |
+| Body | 15px | 400 |
+| Caption | 12px | 400 |
 
 ---
 
 ## Espaciado y grid
 
-<!-- Define la escala de espaciado y el sistema de grid.
-     Ejemplo:
-     - Escala: 4px base (4, 8, 12, 16, 24, 32, 48, 64, 96)
-     - Grid: 12 columnas, gutter 24px, max-width 1200px -->
+- Escala: 4px base (4, 8, 12, 16, 24, 32, 48)
+- Layout: columna centrada, max-width 900px
+- Grid de resultados: 2 columnas en desktop, 1 en móvil
+- Gutter entre cards: 16px
 
 ---
 
 ## Estilo de componentes
 
-<!-- Describe las decisiones de estilo que aplican globalmente.
-     Ejemplo:
-     - Border radius: 8px para cards, 4px para inputs, full para badges
-     - Sombras: solo en modales y dropdowns, nunca decorativas
-     - Densidad: compacta (menos padding) en tablas, estándar en el resto
-     - Iconos: Lucide React, tamaño base 20px -->
+- Border radius: 12px para cards, 8px para inputs y botones, 6px para badges
+- Sombras: sutil en cards (`0 1px 3px rgba(0,0,0,0.4)`)
+- Inputs: fondo `#1C2333`, borde `#30363D`, focus con borde púrpura
+- Indicador de riesgo: barra de progreso de color semántico (verde → naranja → rojo)
+- Iconos: SVG inline, tamaño 18-20px
 
 ---
 
 ## Tono visual
 
-<!-- Descripción en prosa del look & feel.
-     Qué sensación debe transmitir el producto. Qué NO debe parecer.
-     Ejemplo:
-     "Profesional pero accesible. No corporativo ni frío.
-      Limpio, con espacio para respirar. Nada de efectos decorativos gratuitos.
-      La información es el protagonista, la UI desaparece." -->
+Profesional y técnico, estética DeFi/crypto. Oscuro porque los usuarios de DeFi prefieren dark mode.
+La información numérica es el protagonista — tipografía monospace para valores, colores semánticos para riesgo.
+Sin decoraciones gratuitas. Nada de gradientes llamativos. Densidad media: suficiente espacio para respirar.
 
 ---
 
 ## Componentes definidos
 
-<!-- A medida que se crean componentes reutilizables, documentarlos aquí.
-     Nombre, propósito, props principales, cuándo usarlo y cuándo no.
-     Ejemplo:
-     
-     ### StatusBadge
-     Muestra el estado de un elemento (activo, inactivo, pendiente).
-     Props: `status: 'active' | 'inactive' | 'pending'`
-     Usar en tablas y cards. No usar en formularios. -->
+### RiskBadge
+Muestra el nivel de riesgo con color semántico.
+Estados: `safe` (verde, HF > 1.5), `warning` (naranja, HF 1.1–1.5), `danger` (rojo, HF < 1.1)
 
----
+### MetricCard
+Card con label superior, valor destacado y descripción inferior.
+Usada para: precio de liquidación, HF, LTV, caída%.
 
-## Referencias visuales
+### ProgressBar
+Barra horizontal que muestra el HF relativo a 1 (liquidación).
+Color cambia según nivel de riesgo.
 
-<!-- Links o descripciones de diseños, productos o webs que han servido de referencia.
-     Útil para mantener coherencia cuando entra alguien nuevo al proyecto. -->
+### InputGroup
+Label + input numérico + sufijo (%, USD, etc.).
+Validación inline con borde rojo si el valor es inválido.
